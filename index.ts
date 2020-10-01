@@ -13,6 +13,7 @@ enum LatinToArabic {
   X = 10,
   V = 5,
   I = 1,
+  '' = 0,
 }
 
 /**
@@ -21,84 +22,31 @@ enum LatinToArabic {
 export function toLatin(arabic: number): string {
   let latin = '';
 
+  function convertStep(before: LatinToArabic | Number, current: LatinToArabic, next: LatinToArabic | 0) {
+    if (arabic >= before) {
+      return;
+    }
+
+    if (arabic >= current) {
+      latin += LatinToArabic[current];
+      arabic -= current;
+      return;
+    }
+
+    if (arabic >= current - next) {
+      latin += LatinToArabic[next] + LatinToArabic[current];
+      arabic -= current - next;
+    }
+  }
+
   while (arabic > 0) {
-    if (arabic >= LatinToArabic.M) {
-      latin += 'M';
-      arabic -= LatinToArabic.M;
-      continue;
-    }
-
-    if (arabic >= LatinToArabic.M - LatinToArabic.C) {
-      latin += 'CM';
-      arabic -= LatinToArabic.M - LatinToArabic.C;
-      continue;
-    }
-
-    if (arabic >= LatinToArabic.D) {
-      latin += 'D';
-      arabic -= LatinToArabic.D;
-      continue;
-    }
-
-    if (arabic >= LatinToArabic.D - LatinToArabic.C) {
-      latin += 'CD';
-      arabic -= LatinToArabic.D - LatinToArabic.C;
-      continue;
-    }
-
-    if (arabic >= LatinToArabic.C) {
-      latin += 'C';
-      arabic -= LatinToArabic.C;
-      continue;
-    }
-
-    if (arabic >= LatinToArabic.C - LatinToArabic.X) {
-      latin += 'XC';
-      arabic -= LatinToArabic.C - LatinToArabic.X;
-      continue;
-    }
-
-    if (arabic >= LatinToArabic.L) {
-      latin += 'L';
-      arabic -= LatinToArabic.L;
-      continue;
-    }
-
-    if (arabic >= LatinToArabic.L - LatinToArabic.X) {
-      latin += 'XL';
-      arabic -= LatinToArabic.L - LatinToArabic.X;
-      continue;
-    }
-
-    if (arabic >= LatinToArabic.X) {
-      latin += 'X';
-      arabic -= LatinToArabic.X;
-      continue;
-    }
-
-    if (arabic >= LatinToArabic.X - LatinToArabic.I) {
-      latin += 'IX';
-      arabic -= LatinToArabic.X - LatinToArabic.I;
-      continue;
-    }
-
-    if (arabic >= LatinToArabic.V) {
-      latin += 'V';
-      arabic -= LatinToArabic.V;
-      continue;
-    }
-
-    if (arabic >= LatinToArabic.V - LatinToArabic.I) {
-      latin += 'IV';
-      arabic -= LatinToArabic.V - LatinToArabic.I;
-      continue;
-    }
-
-    if (arabic >= LatinToArabic.I) {
-      latin += 'I';
-      arabic -= LatinToArabic.I;
-      continue;
-    }
+    convertStep(Number.POSITIVE_INFINITY, LatinToArabic.M, LatinToArabic.C);
+    convertStep(LatinToArabic.M, LatinToArabic.D, LatinToArabic.C);
+    convertStep(LatinToArabic.D, LatinToArabic.C, LatinToArabic.X);
+    convertStep(LatinToArabic.C, LatinToArabic.L, LatinToArabic.X);
+    convertStep(LatinToArabic.L, LatinToArabic.X, LatinToArabic.I);
+    convertStep(LatinToArabic.X, LatinToArabic.V, LatinToArabic.I);
+    convertStep(LatinToArabic.V, LatinToArabic.I, 0);
   }
 
   return latin;
